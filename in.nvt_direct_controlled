@@ -1,0 +1,65 @@
+# =========================================================
+# NVT direct protocol — CONTROLLED comparison (item 1.2.1)
+# System: caffeine + SPC/E water
+# Starting point: nvt_short_final.data
+#   (output of the short NVT ramp 150->298 K)
+#
+# DESIGN: This script differs from the full protocol ONLY
+# in the absence of the NPT equilibration step.
+# ALL other parameters are IDENTICAL to the full protocol:
+#   - Same Tdamp = 200 fs
+#   - Same initial structure (post-NVT-short)
+#   - Same timestep (0.5 fs)
+#   - Same SHAKE settings
+#   - Same run length (200 000 steps / 100 ps for comparison)
+#
+# Required for: item 1.2.1 (RBEF revision R1)
+# =========================================================
+
+include         in.common
+read_data       nvt_short_final.data
+
+# Groups
+group           caffeine  molecule 1
+group           water     type 25 26
+group           waterO    type 25
+
+# SHAKE — same as full protocol
+fix             fxShake water shake 1.0e-4 200 0 b 26 a 44
+
+reset_timestep  0
+timestep        0.5
+
+# NVT — Nose-Hoover, Tdamp = 200 fs (IDENTICAL to full protocol)
+fix             fxNVT all nvt temp 298.0 298.0 200.0
+
+# Thermo output
+thermo          100
+thermo_style    custom step temp pe ke etotal press density vol
+thermo_modify   flush yes
+
+# Trajectory
+dump            d1 all custom 1000 nvt_direct_controlled.lammpstrj &
+                id mol type q x y z vx vy vz
+dump_modify     d1 sort id
+
+restart         50000 nvt_direct.restart1 nvt_direct.restart2
+
+# MSD
+compute         cMSDwatO waterO msd com yes
+fix             fxMSDwatO waterO ave/time 100 10 1000 &
+                c_cMSDwatO[4] file msd_waterO_direct.dat
+
+variable        vTemp  equal temp
+variable        vPress equal press
+variable        vDens  equal density
+variable        vVol   equal vol
+
+fix             fxAvg all ave/time 100 10 1000 &
+                v_vTemp v_vPress v_vDens v_vVol &
+                file thermo_avg_direct.dat mode scalar
+
+# Run: 200 000 steps = 100 ps (same as original short production)
+run             200000
+
+write_data      nvt_direct_controlled_final.data
