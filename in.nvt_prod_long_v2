@@ -1,5 +1,5 @@
 # =========================================================
-# NVT production — LONG run (500 000 steps / 250 ps)
+# NVT production — LONG run (1 000 000 steps / 500 ps)
 # System: caffeine + SPC/E water
 # Starting point: NPT-equilibrated structure (npt_eq_final.data)
 #
@@ -101,7 +101,7 @@ fix             fxAvg all ave/time 100 10 1000 &
                 file thermo_avg_prod_long.dat mode scalar
 
 # ---------------------------------------------------------
-# 13. Run: 500 000 steps = 250 ps
+# 13. Run: 1 000 000 steps = 500 ps
 # ---------------------------------------------------------
 run             1000000
 
