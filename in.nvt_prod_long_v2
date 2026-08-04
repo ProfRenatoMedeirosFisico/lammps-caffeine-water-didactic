@@ -1,5 +1,5 @@
-﻿# =========================================================
-# NVT production â€” LONG run (1 000 000 steps / 500 ps)
+# =========================================================
+# NVT production — LONG run (1 000 000 steps / 500 ps)
 # System: caffeine + SPC/E water
 # Starting point: NPT-equilibrated structure (npt_eq_final.data)
 #
@@ -44,7 +44,7 @@ reset_timestep  0
 timestep        0.5
 
 # ---------------------------------------------------------
-# 6. Thermostat â€” Nose-Hoover NVT (Tdamp = 200 fs)
+# 6. Thermostat — Nose-Hoover NVT (Tdamp = 200 fs)
 # ---------------------------------------------------------
 fix             fxNVT all nvt temp 298.0 298.0 200.0
 
@@ -68,7 +68,7 @@ dump_modify     d1 sort id
 restart         50000 nvt_prod_long.restart1 nvt_prod_long.restart2
 
 # ---------------------------------------------------------
-# 10. MSD â€” water oxygens
+# 10. MSD — water oxygens
 #     com yes = removes center-of-mass drift before computing MSD
 #     Output: step  MSD_waterO (A^2)
 #     Averaged over windows of 1000 steps (every 100 steps, 10 samples)
@@ -78,7 +78,7 @@ fix             fxMSDwatO waterO ave/time 100 10 1000 &
                 c_cMSDwatO[4] file msd_waterO.dat title1 "# Step MSD_waterO(A^2)"
 
 # ---------------------------------------------------------
-# 11. MSD â€” caffeine (center of mass)
+# 11. MSD — caffeine (center of mass)
 # ---------------------------------------------------------
 compute         cMSDcaf caffeine msd com yes
 fix             fxMSDcaf caffeine ave/time 100 10 1000 &
@@ -109,4 +109,3 @@ run             1000000
 # 14. Save final structure
 # ---------------------------------------------------------
 write_data      nvt_prod_long_final.data
-
