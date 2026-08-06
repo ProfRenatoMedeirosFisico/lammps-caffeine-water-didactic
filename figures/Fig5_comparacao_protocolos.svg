@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="500" viewBox="0 0 1300 500">
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#111}.title{font-size:30px;font-weight:600}.panel{font-size:23px;font-weight:600}.axis{stroke:#222;stroke-width:2}.bar{fill:#2878b5}.dash{stroke:#2878b5;stroke-width:3;stroke-dasharray:9 6}.lab{font-size:18px}.tick{font-size:16px}.err{stroke:#111;stroke-width:3}</style>
+<text x="650" y="40" text-anchor="middle" class="title">Comparação entre os protocolos NVT direto e corrigido</text>
+<text x="225" y="80" text-anchor="middle" class="panel">(a) Densidade</text><rect x="60" y="100" width="340" height="320" fill="none" class="axis"/>
+<line x1="60" y1="135" x2="400" y2="135" class="dash"/><text x="68" y="125" class="tick">SPC/E: 0,997</text>
+<rect x="115" y="335" width="90" height="85" class="bar"/><rect x="260" y="155" width="90" height="265" class="bar"/>
+<text x="160" y="325" text-anchor="middle" class="lab">0,8983</text><text x="305" y="145" text-anchor="middle" class="lab">0,9881</text>
+<text x="160" y="455" text-anchor="middle" class="lab">NVT direto</text><text x="305" y="455" text-anchor="middle" class="lab">Protocolo corrigido</text><text x="25" y="285" transform="rotate(-90 25 285)" class="lab">Densidade (g cm⁻³)</text>
+<text x="650" y="80" text-anchor="middle" class="panel">(b) Pressão média</text><rect x="480" y="100" width="340" height="320" fill="none" class="axis"/>
+<line x1="480" y1="120" x2="820" y2="120" class="axis"/><rect x="535" y="165" width="90" height="255" class="bar"/><rect x="680" y="132" width="90" height="12" class="bar"/>
+<line x1="580" y1="105" x2="580" y2="225" class="err"/><line x1="566" y1="105" x2="594" y2="105" class="err"/><line x1="566" y1="225" x2="594" y2="225" class="err"/>
+<line x1="725" y1="105" x2="725" y2="180" class="err"/><line x1="711" y1="105" x2="739" y2="105" class="err"/><line x1="711" y1="180" x2="739" y2="180" class="err"/>
+<text x="580" y="405" text-anchor="middle" class="lab">−1555</text><text x="725" y="200" text-anchor="middle" class="lab">−77,3</text><text x="580" y="455" text-anchor="middle" class="lab">NVT direto</text><text x="725" y="455" text-anchor="middle" class="lab">Protocolo corrigido</text><text x="445" y="290" transform="rotate(-90 445 290)" class="lab">Pressão média (atm)</text>
+<text x="1075" y="80" text-anchor="middle" class="panel">(c) Volume</text><rect x="900" y="100" width="340" height="320" fill="none" class="axis"/>
+<rect x="955" y="155" width="90" height="265" class="bar"/><rect x="1100" y="270" width="90" height="150" class="bar"/>
+<text x="1000" y="145" text-anchor="middle" class="lab">27000</text><text x="1145" y="260" text-anchor="middle" class="lab">24546</text><text x="1000" y="455" text-anchor="middle" class="lab">NVT direto</text><text x="1145" y="455" text-anchor="middle" class="lab">Protocolo corrigido</text><text x="865" y="280" transform="rotate(-90 865 280)" class="lab">Volume (Å³)</text>
+</svg>
