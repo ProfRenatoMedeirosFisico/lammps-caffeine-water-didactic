@@ -1,0 +1,41 @@
+# =========================================================
+# Short conservative NVT for initial thermal accommodation
+# System: caffeine + SPC/E water
+# Starting point: minimized structure
+# =========================================================
+
+include         in.common
+read_data       minimized_opls_spce.data
+
+# Groups
+group           caffeine molecule 1
+group           water type 25 26
+
+# Rigid SPC/E water: bond type 26 = O-H; angle type 44 = H-O-H
+fix             fxShake water shake 1.0e-4 200 0 b 26 a 44
+
+reset_timestep  0
+timestep        0.5
+
+# Gentle initial velocity assignment; remove net linear momentum
+velocity        all create 150.0 4928459 rot yes dist gaussian mom yes
+
+thermo          100
+thermo_style    custom step temp pe ke etotal press density vol
+thermo_modify   flush yes
+
+dump            d1 all custom 500 nvt_short.lammpstrj id mol type q x y z vx vy vz
+dump_modify     d1 sort id
+
+# Stage 1: 150 -> 298 K over 10000 steps = 5 ps
+fix             fxNVT1 all nvt temp 150.0 298.0 200.0
+run             10000
+unfix           fxNVT1
+
+# Stage 2: hold at 298 K for 40000 steps = 20 ps
+fix             fxNVT2 all nvt temp 298.0 298.0 200.0
+run             40000
+unfix           fxNVT2
+
+undump          d1
+write_data      nvt_short_final.data
