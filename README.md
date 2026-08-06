@@ -1,161 +1,113 @@
 # Protocolo didático de dinâmica molecular: sistema cafeína–água com LAMMPS
 
-Arquivos de entrada, dados e logs associados ao artigo:
+Arquivos de entrada, estruturas, dados processados, trajetória e scripts associados ao manuscrito RBEF-2026-0227.
 
-> **Uso do LAMMPS no ensino de dinâmica molecular: protocolo didático para o sistema cafeína–água**
-> Submetido à *Revista Brasileira de Ensino de Física* (RBEF), 2026.
+## Sistema e objetivo
 
-## Descrição
+O sistema contém uma molécula de cafeína e 800 moléculas de água em uma caixa cúbica inicial de aproximadamente 30 × 30 × 30 Å³. A cafeína usa parâmetros OPLS-AA obtidos com LigParGen e a água usa o modelo SPC/E rígido por SHAKE. O material foi organizado para ensinar a diferença entre estabilidade numérica e consistência física, com ênfase no papel dos ensembles NVT e NPT.
 
-Repositório com o material completo para reproduzir o protocolo de simulação descrito no artigo. O sistema consiste em uma molécula de cafeína solvatada por 800 moléculas de água em uma caixa cúbica de ~30 × 30 × 30 Å³, campo de força OPLS-AA (cafeína) + SPC/E rígido via SHAKE (água).
+## Protocolo efetivamente utilizado
 
-O protocolo segue cinco etapas com funções físicas distintas:
+| Etapa | Ensemble | Passos | Duração | Finalidade |
+|---|---|---:|---:|---|
+| Minimização | — | até 5000 iterações | — | Remover contatos desfavoráveis |
+| NVT curto | NVT, 150→298 K e manutenção | 50000 | 25 ps | Acomodação térmica |
+| NPT | NPT isotrópico, 298 K e 1 atm | 100000 | 50 ps | Relaxação do volume e da densidade |
+| NVT produção | NVT, 298 K | 1000000 | 500 ps | Produção, MSD e estimativa de D |
+| NVT direto controlado | NVT, 298 K | 200000 | 100 ps | Controle sem NPT, iniciado na mesma condição pós-NVT curto |
 
-| Etapa | Ensemble | Duração | Finalidade |
-|-------|----------|---------|-----------|
-| 1. Minimização | — | convergência | Remover contatos desfavoráveis |
-| 2. NVT curto | NVT 150→298 K | 50 ps | Acomodação térmica com rampa |
-| 3. NPT | NPT 298 K, 1 atm | 500 ps | Relaxação volumétrica e ajuste de densidade |
-| 4. NVT produção | NVT 298 K | 500 ps | Trajetória principal; cálculo de MSD e D |
-| 5. NVT direto (controlado) | NVT 298 K | 100 ps | Comparação isolada sem NPT (mesma semente, mesmo Tdamp) |
+O protocolo corrigido possui duração acumulada de **575 ps**: 25 ps de NVT curto, 50 ps de NPT e 500 ps de produção.
 
-## Requisitos
+## Configurações relevantes
 
-- **LAMMPS** (testado com `20230802.3`): https://www.lammps.org
-- **Packmol**: https://m3g.ims.unicamp.br/packmol
-- **Python 3** com `numpy` e `matplotlib` (análise pós-simulação)
+- LAMMPS: `units real`, `atom_style full`, condições periódicas.
+- Interações não ligadas: `lj/cut/coul/long 10.0 10.0` e PPPM com precisão `1.0e-4`.
+- Mistura: `pair_modify mix geometric tail no`.
+- Não foi aplicada correção analítica de cauda de Lennard-Jones.
+- Escala 1–4: `special_bonds lj/coul 0.0 0.0 0.5`.
+- Minimização: `minimize 1.0e-6 1.0e-8 5000 50000` com gradiente conjugado.
+- SHAKE da água: `fix ... shake 1.0e-4 200 0 b 26 a 44`.
+- Passo de integração: 0,5 fs. Somente a água é rígida; as ligações C–H da cafeína permanecem flexíveis.
+- Termostato de Nosé–Hoover: `Tdamp = 200 fs`.
+- Barostato isotrópico: `iso 1.0 1.0 1000.0`, com `Pdamp = 1000 fs`.
+- Inicialização: 150 K, distribuição gaussiana e `mom yes` para remover o momento linear líquido.
 
-## Campo de força
+A combinação OPLS-AA/SPC/E por regra geométrica de mistura é uma aproximação prática; os parâmetros cruzados cafeína–água não foram ajustados conjuntamente.
 
-| Componente | Modelo | Fonte |
-|---|---|---|
-| Cafeína | OPLS-AA (24 tipos atômicos) | LigParGen — Dodda et al., *JPCB* **121**, 3864 (2017) |
-| Água | SPC/E rígida (SHAKE) | Berendsen et al., *J. Phys. Chem.* **91**, 6269 (1987) |
+## Arquivos de entrada
 
-Parâmetros globais (em `in.common`):
+| Arquivo | Função |
+|---|---|
+| `in.common` | Parâmetros globais |
+| `in.minimization` | Minimização por gradiente conjugado |
+| `in.nvt_short` | Rampa 150→298 K e manutenção em NVT |
+| `in.npt_eq` | Equilibração NPT isotrópica de 50 ps |
+| `in.nvt_prod_long_v2` | Produção NVT de 500 ps, MSD e dados termodinâmicos |
+| `in.nvt_direct_controlled` | Comparação controlada de 100 ps sem NPT |
 
-- Combinação: geométrica (`pair_modify mix geometric`)
-- Escala 1-4: `special_bonds lj/coul 0.0 0.0 0.5`
-- Cutoff: 10 Å; eletrostática de longo alcance: PPPM (10⁻⁴)
-- Passo de integração: 0,5 fs; SHAKE: tol=10⁻⁴, 200 iter, ligação O-H e ângulo H-O-H
+## Dados e estruturas
 
-## Arquivos do repositório
+- `system_final_opls_spce.data`: topologia inicial parametrizada.
+- `minimized_opls_spce.data`: estrutura pós-minimização.
+- `nvt_short_final.data`: estrutura e velocidades após NVT curto.
+- `npt_eq_final.data`: último frame da etapa NPT usado na produção.
+- `nvt_prod_long_final.data`: estrutura após a produção de 500 ps.
+- `nvt_prod_long.zip`: trajetória exata da produção longa, armazenada por Git LFS.
+- `thermo_avg_prod_long.dat`: série termodinâmica processada da produção.
+- `msd_waterO.dat` e `msd_caffeine.dat`: deslocamentos quadráticos médios.
 
-### Entradas e topologias
+Cada réplica foi iniciada a partir do último frame de sua própria etapa NPT. Como o volume instantâneo flutua, os volumes finais das réplicas diferem ligeiramente. O uso do volume médio equilibrado e posterior reescalonamento da célula é uma alternativa mais controlada para futuras aplicações.
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `in.common` | Parâmetros globais incluídos por todos os inputs |
-| `packmol_caffeine_water.inp` | Input do Packmol para montagem da caixa |
-| `caffeine_clean.pdb` | Estrutura PDB da cafeína |
-| `water.pdb` | Estrutura PDB da água SPC/E |
-| `system.data` | Topologia inicial gerada pelo Packmol + fftool/LigParGen |
-| `system_final_opls_spce.data` | Topologia corrigida (tipos atômicos OPLS-AA finais) |
-| `in.nvt_prod_long_v2` | Input da produção NVT longa (500 ps + MSD) — **novo** |
-| `in.nvt_direct_controlled` | Input do NVT direto controlado (comparação sem NPT) — **novo** |
+## Resultados usados no manuscrito revisado
 
-### Dados de reinício (checkpoints)
+### Comparação em janelas equivalentes de 100 ps
 
-| Arquivo | Etapa de origem |
-|---------|----------------|
-| `minimized_opls_spce.data` | Pós-minimização |
-| `nvt_short_final.data` | Pós-NVT curto |
-| `npt_eq_final.data` | Pós-NPT |
-| `nvt_prod_final.data` | Pós-produção original (100 ps) |
-| `nvt_prod_long_final.data` | Pós-produção longa (500 ps) — **novo** |
-| `system_initial.pdb` | Configuração inicial (pós-Packmol) |
+- NVT direto: ρ = 0,8983 g cm⁻³; V = 27000 Å³; P = −1555 ± 388 atm.
+- NVT após NPT: ρ = 0,9881 g cm⁻³; V = 24546,1 Å³; P = −77,3 ± 250,8 atm.
 
-### Logs e dados de análise
+### Produção de 500 ps
 
-| Arquivo | Etapa ou conteúdo |
-|---------|-------------------|
-| `log.min_serial.lammps` | Minimização |
-| `log.minimization.lammps` | Minimização (versão alternativa) |
-| `log.nvt_short.lammps` | NVT curto |
-| `log.nvt_serial.lammps` | NVT curto (execução serial de referência) |
-| `log.npt_eq.lammps` | NPT equilíbrio |
-| `log.nvt_prod.lammps` | NVT produção original (100 ps) |
-| `log.nvt_prod_long.lammps` | Log completo da produção longa (500 ps) |
-| `log.nvt_direct_controlled.lammps` | NVT direto controlado (100 ps) |
-| `thermo_avg_prod_long.dat` | Médias termodinâmicas da produção longa |
-| `msd_waterO.dat` | MSD dos oxigênios da água |
-| `msd_caffeine.dat` | MSD da cafeína |
-| `nvt_prod_long.zip` | Trajetória exata `nvt_prod_long.lammpstrj`, compactada e armazenada por Git LFS |
+O manuscrito usa um único conjunto consistente de estatísticas para a produção completa:
 
-## Como reproduzir
+- T = 297,97 ± 5,91 K.
+- P = −90,19 ± 439,15 atm.
+- ρ = 0,9881 g cm⁻³.
+- V = 24546,1 Å³.
 
-### 1. Montagem da caixa (opcional — `.data` já incluído)
+### Difusão
+
+O valor final é obtido pela janela principal de 100–500 ps:
+
+- inclinação: a = 1,590 Å² ps⁻¹;
+- D = 2,65 × 10⁻⁵ cm² s⁻¹.
+
+As janelas 150–500 e 200–500 ps são usadas apenas como testes de sensibilidade e não são combinadas como uma incerteza estatística, pois compartilham a maior parte dos mesmos dados. O valor de D é **não corrigido para tamanho finito**; não foi aplicada a correção de Yeh–Hummer.
+
+## Figuras e análise reprodutível
+
+- `figures/Fig5_comparacao_protocolos.svg`: comparação corrigida com −1555 e −77,3 atm.
+- `figures/Fig6_protocolo_575ps.svg`: eixo acumulado correto até 575 ps.
+- `scripts/generate_revision_assets.py`: recalcula estatísticas, ajusta o MSD e exporta as Figuras 5–7 em PNG de 600 dpi e PDF vetorial.
+
+Execução:
 
 ```bash
-packmol < packmol_caffeine_water.inp
+python -m pip install numpy matplotlib
+python scripts/generate_revision_assets.py
 ```
 
-### 2. Minimização
+Os resultados numéricos são gravados em `analysis/revision_summary.json`.
+
+## Reprodução das etapas
 
 ```bash
 lmp -in in.minimization -log log.minimization.lammps
-```
-
-### 3. NVT curto (aquecimento 150 → 298 K)
-
-```bash
 lmp -in in.nvt_short -log log.nvt_short.lammps
-```
-
-### 4. Equilíbrio NPT (298 K, 1 atm)
-
-```bash
 lmp -in in.npt_eq -log log.npt_eq.lammps
-```
-
-### 5. Produção NVT longa (500 ps + MSD)
-
-```bash
 lmp -in in.nvt_prod_long_v2 -log log.nvt_prod_long.lammps
-```
-
-Gera: `msd_waterO.dat`, `msd_caffeine.dat`, `thermo_avg_prod_long.dat`, `nvt_prod_long.lammpstrj` e `nvt_prod_long_final.data`.
-
-### 6. NVT direto controlado (comparação sem NPT)
-
-Parte de `nvt_short_final.data`, mesmo Tdamp=200 fs, mesma temperatura-alvo.
-
-```bash
 lmp -in in.nvt_direct_controlled -log log.nvt_direct_controlled.lammps
 ```
 
-### 7. Réplica independente
-
-Repetir as etapas 3–5 alterando a semente em `in.nvt_short` (linha `velocity all create 150.0 SEMENTE`). A réplica do artigo usou semente `8452197`.
-
-## Integridade dos arquivos da produção de 500 ps
-
-A produção empregou `1 000 000` de passos com `timestep = 0,5 fs`, totalizando `500 ps`. Os arquivos correspondem à execução usada nas análises de MSD, difusão e nas Figuras 5 e 6.
-
-```text
-log.nvt_prod_long.lammps
-SHA-256: 9bce39671764b8e9650e8215cc67c1505ec41bbac0b6b604fa2c6524ed61b035
-
-thermo_avg_prod_long.dat
-SHA-256: 7fea3bbe178a6fe3f771cd4bc9f99799afb8516c127d35d957861b1c75d90c42
-
-nvt_prod_long.zip
-SHA-256: 932066e7963a3bea0729bc2a106f68911cb3c1cd2f8e40e2a3ab74e72b5fa53a
-```
-
-## Resultados obtidos
-
-- **Coeficiente de difusão da água (SPC/E):** D = 2,65 × 10⁻⁵ cm² s⁻¹ (janela 100–500 ps; referência SPC/E: ~2,5 × 10⁻⁵ cm² s⁻¹)
-- **Densidade pós-NPT:** ρ = 0,997 ± 0,003 g cm⁻³ (referência SPC/E: 0,997 g cm⁻³)
-- **Temperatura de produção:** T = 298,2 ± 0,5 K
-- **Pressão NVT direto (sem NPT):** P = −1555 ± 388 atm (evidência da necessidade do NPT)
-
-## Referência
-
-Se utilizar este material, por favor cite:
-
-> R. A. Medeiros et al., Uso do LAMMPS no ensino de dinâmica molecular: protocolo didático para o sistema cafeína–água, *Revista Brasileira de Ensino de Física* (2026). [DOI a ser atribuído após publicação]
-
 ## Licença
 
-[MIT](LICENSE)
+MIT — consulte `LICENSE`.
