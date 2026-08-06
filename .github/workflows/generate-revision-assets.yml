@@ -58,3 +58,5 @@ jobs:
               git push
             fi
           fi
+
+# Pull-request trigger commit for deterministic regeneration.
