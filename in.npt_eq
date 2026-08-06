@@ -1,0 +1,33 @@
+# =========================================================
+# Conservative isotropic NPT equilibration
+# System: caffeine + SPC/E water
+# Starting point: short NVT-prepared structure
+# =========================================================
+
+include         in.common
+read_data       nvt_short_final.data
+
+# Groups
+group           caffeine molecule 1
+group           water type 25 26
+
+# Rigid SPC/E water
+fix             fxShake water shake 1.0e-4 200 0 b 26 a 44
+
+reset_timestep  0
+timestep        0.5
+
+thermo          100
+thermo_style    custom step temp pe ke etotal press density vol lx ly lz
+thermo_modify   flush yes
+
+dump            d1 all custom 500 npt_eq.lammpstrj id mol type q x y z vx vy vz
+dump_modify     d1 sort id
+
+# Tdamp = 200 fs; isotropic Pdamp = 1000 fs; target = 298 K and 1 atm
+fix             fxNPT all npt temp 298.0 298.0 200.0 iso 1.0 1.0 1000.0
+run             100000
+unfix           fxNPT
+
+undump          d1
+write_data      npt_eq_final.data
