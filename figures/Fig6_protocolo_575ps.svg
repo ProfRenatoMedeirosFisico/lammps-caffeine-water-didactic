@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#111} .title{font-size:27px;font-weight:600}.panel{font-size:20px;font-weight:600}.axis{stroke:#222;stroke-width:2}.grid{stroke:#ddd;stroke-width:1}.dash{stroke:#666;stroke-width:2;stroke-dasharray:8 6}.stage{stroke:#777;stroke-width:2;stroke-dasharray:4 4}.line{fill:none;stroke:#1769aa;stroke-width:4}.band{fill:#f0b77a;opacity:.25}.shade{fill:#b9d7ee;opacity:.22}.label{font-size:17px}.tick{font-size:15px}.small{font-size:14px}
+  </style>
+  <text x="600" y="38" text-anchor="middle" class="title">Síntese temporal do protocolo corrigido (duração total: 575 ps)</text>
+  <rect x="233" y="70" width="177" height="720" class="shade"/>
+  <line x1="144" y1="70" x2="144" y2="790" class="stage"/>
+  <line x1="233" y1="70" x2="233" y2="790" class="stage"/>
+  <line x1="410" y1="70" x2="410" y2="790" class="stage"/>
+  <text x="122" y="90" text-anchor="middle" class="small">NVT curto</text><text x="122" y="108" text-anchor="middle" class="small">25 ps</text>
+  <text x="188" y="90" text-anchor="middle" class="small">NPT</text><text x="188" y="108" text-anchor="middle" class="small">50 ps</text>
+  <text x="765" y="90" text-anchor="middle" class="small">NVT de produção</text><text x="765" y="108" text-anchor="middle" class="small">500 ps</text>
+  <text x="600" y="125" text-anchor="middle" class="panel">(a) Temperatura-alvo e faixas de flutuação</text>
+  <rect x="144" y="145" width="976" height="185" fill="none" class="axis"/>
+  <line x1="144" y1="175" x2="1120" y2="175" class="grid"/><line x1="144" y1="235" x2="1120" y2="235" class="grid"/><line x1="144" y1="295" x2="1120" y2="295" class="grid"/>
+  <rect x="188" y="163" width="932" height="24" class="band"/>
+  <polyline points="144,315 153,175 188,175 233,174 1120,175" class="line"/>
+  <line x1="144" y1="175" x2="1120" y2="175" class="dash"/>
+  <text x="55" y="238" transform="rotate(-90 55 238)" class="label">Temperatura (K)</text>
+  <text x="132" y="319" text-anchor="end" class="tick">150</text><text x="132" y="180" text-anchor="end" class="tick">298</text>
+  <text x="600" y="370" text-anchor="middle" class="panel">(b) Relaxação da tensão mecânica</text>
+  <rect x="144" y="390" width="976" height="185" fill="none" class="axis"/>
+  <line x1="144" y1="420" x2="1120" y2="420" class="dash"/>
+  <rect x="233" y="406" width="887" height="50" class="band"/>
+  <polyline points="144,535 188,535 233,420 1120,428" class="line"/>
+  <text x="55" y="488" transform="rotate(-90 55 488)" class="label">Pressão (atm)</text>
+  <text x="132" y="425" text-anchor="end" class="tick">0</text><text x="132" y="540" text-anchor="end" class="tick">−1555</text>
+  <text x="1000" y="449" class="small">produção: −90,19 ± 439,15 atm</text>
+  <text x="600" y="615" text-anchor="middle" class="panel">(c) Ajuste de densidade e volume fixo na produção</text>
+  <rect x="144" y="635" width="976" height="155" fill="none" class="axis"/>
+  <line x1="144" y1="655" x2="1120" y2="655" class="dash"/>
+  <polyline points="144,775 188,775 233,665 1120,665" class="line"/>
+  <text x="55" y="725" transform="rotate(-90 55 725)" class="label">Densidade (g cm⁻³)</text>
+  <text x="132" y="780" text-anchor="end" class="tick">0,8983</text><text x="132" y="670" text-anchor="end" class="tick">0,9881</text>
+  <text x="940" y="650" class="small">referência SPC/E: 0,997</text>
+  <line x1="144" y1="790" x2="1120" y2="790" class="axis"/>
+  <g class="tick"><text x="144" y="815" text-anchor="middle">0</text><text x="188" y="815" text-anchor="middle">25</text><text x="233" y="815" text-anchor="middle">75</text><text x="410" y="815" text-anchor="middle">175</text><text x="1120" y="815" text-anchor="middle">575</text></g>
+  <text x="632" y="850" text-anchor="middle" class="label">Tempo acumulado do protocolo (ps)</text>
+  <text x="600" y="882" text-anchor="middle" class="small">A faixa 75–175 ps corresponde aos primeiros 100 ps da produção usados na comparação controlada.</text>
+</svg>
