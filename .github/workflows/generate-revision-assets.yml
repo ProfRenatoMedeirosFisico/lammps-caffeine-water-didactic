@@ -45,3 +45,5 @@ jobs:
             git commit -m "Regenerate revision figures and analysis [skip ci]"
             git push
           fi
+
+# This update intentionally triggers generation after workflow installation.
