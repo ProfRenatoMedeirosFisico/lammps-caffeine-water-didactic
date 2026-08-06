@@ -46,4 +46,4 @@ jobs:
             git push
           fi
 
-# This update intentionally triggers generation after workflow installation.
+# Workflow registered; this revision triggers the first full generation run.
