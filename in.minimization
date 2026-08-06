@@ -1,0 +1,19 @@
+# =========================================================
+# Conjugate-gradient minimization
+# System: caffeine + SPC/E water
+# =========================================================
+
+include         in.common
+read_data       system_final_opls_spce.data
+
+group           caffeine molecule 1
+group           water type 25 26
+
+thermo          100
+thermo_style    custom step temp pe ke etotal press density
+thermo_modify   flush yes
+
+min_style       cg
+minimize        1.0e-6 1.0e-8 5000 50000
+
+write_data      minimized_opls_spce.data
