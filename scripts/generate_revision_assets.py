@@ -62,6 +62,7 @@ def fit_diffusion(time_ps: np.ndarray, msd: np.ndarray, start: float, end: float
 def save(fig: plt.Figure, stem: str) -> None:
     fig.savefig(FIGURES / f"{stem}.png", dpi=600, bbox_inches="tight")
     fig.savefig(FIGURES / f"{stem}.pdf", bbox_inches="tight")
+    fig.savefig(FIGURES / f"{stem}.svg", bbox_inches="tight")
     plt.close(fig)
 
 
@@ -103,39 +104,79 @@ def figure5() -> None:
 
 
 def figure6(prod_stats: dict[str, tuple[float, float]]) -> None:
-    t = np.linspace(0.0, 575.0, 2301)
-    temp = np.where(t <= 5, 150 + (298 - 150) * t / 5, np.where(t <= 25, 298.0, np.where(t <= 75, 298.5, prod_stats["temperature_K"][0])))
-    press = np.where(t <= 25, -1555.0, np.where(t <= 75, -1555 + (2.2 + 1555) * (t - 25) / 50, prod_stats["pressure_atm"][0]))
-    density = np.where(t <= 25, 0.8983, np.where(t <= 75, 0.8983 + (0.9881 - 0.8983) * (t - 25) / 50, prod_stats["density_g_cm3"][0]))
+    """Synthesis of the 575 ps corrected protocol without reusing direct-NVT statistics.
 
+    The previous schematic incorrectly used the controlled direct-NVT pressure
+    (-1555 ± 388 atm) as if it characterized the short-NVT stage. The revised
+    figure reports pressure only for phases for which the manuscript gives a
+    consistent stationary summary: the second half of NPT and the 500 ps
+    production. The NPT density change is shown as a schematic transition.
+    """
     fig, axes = plt.subplots(3, 1, figsize=(11.3, 8.8), sharex=True)
-    axes[0].plot(t, temp, linewidth=1.5)
-    axes[0].fill_between(t[t > 75], prod_stats["temperature_K"][0] - prod_stats["temperature_K"][1], prod_stats["temperature_K"][0] + prod_stats["temperature_K"][1], alpha=0.16)
+
+    # (a) Protocol temperature: 5 ps ramp, 20 ps hold, then reported NPT and production summaries.
+    axes[0].plot([0, 5], [150, 298], linewidth=1.5, label="rampa 150→298 K")
+    axes[0].plot([5, 25], [298, 298], linewidth=1.5, label="manutenção NVT: 298 K")
+    axes[0].plot([25, 75], [298.5, 298.5], linewidth=1.5)
+    axes[0].fill_between([50, 75], 298.5 - 6.3, 298.5 + 6.3, alpha=0.16,
+                         label="NPT, 2ª metade: 298,5 ± 6,3 K")
+    axes[0].plot([75, 575], [prod_stats["temperature_K"][0]] * 2, linewidth=1.5)
+    axes[0].fill_between(
+        [75, 575],
+        prod_stats["temperature_K"][0] - prod_stats["temperature_K"][1],
+        prod_stats["temperature_K"][0] + prod_stats["temperature_K"][1],
+        alpha=0.16,
+        label=f"produção: {prod_stats['temperature_K'][0]:.2f} ± {prod_stats['temperature_K'][1]:.2f} K".replace(".", ","),
+    )
     axes[0].axhline(298.0, linestyle="--", linewidth=1.0)
+    axes[0].set_ylim(145, 312)
     axes[0].set_ylabel("Temperatura (K)")
-    axes[0].set_title("(a) Temperatura-alvo e faixas de flutuação")
+    axes[0].set_title("(a) Protocolo térmico e faixas de flutuação")
+    axes[0].legend(fontsize=7, ncol=2, loc="lower right")
 
-    axes[1].plot(t, press, linewidth=1.5)
-    axes[1].fill_between(t[t <= 25], -1555 - 388, -1555 + 388, alpha=0.14)
-    axes[1].fill_between(t[t > 75], prod_stats["pressure_atm"][0] - prod_stats["pressure_atm"][1], prod_stats["pressure_atm"][0] + prod_stats["pressure_atm"][1], alpha=0.14)
+    # (b) Pressure: only stationary summaries actually reported in the manuscript.
+    axes[1].fill_between([50, 75], 2.2 - 492.8, 2.2 + 492.8, alpha=0.18)
+    axes[1].plot([50, 75], [2.2, 2.2], linewidth=1.5, label="NPT, 2ª metade: 2,2 ± 492,8 atm")
+    axes[1].fill_between(
+        [75, 575],
+        prod_stats["pressure_atm"][0] - prod_stats["pressure_atm"][1],
+        prod_stats["pressure_atm"][0] + prod_stats["pressure_atm"][1],
+        alpha=0.18,
+    )
+    axes[1].plot(
+        [75, 575], [prod_stats["pressure_atm"][0]] * 2, linewidth=1.5,
+        label=f"produção: {prod_stats['pressure_atm'][0]:.2f} ± {prod_stats['pressure_atm'][1]:.2f} atm".replace(".", ","),
+    )
     axes[1].axhline(0.0, linestyle="--", linewidth=1.0)
+    axes[1].text(12.5, -560, "NVT curto:\ncaixa subdensa\nρ = 0,8983 g cm⁻³", ha="center", va="center", fontsize=7)
+    axes[1].set_ylim(-700, 650)
     axes[1].set_ylabel("Pressão (atm)")
-    axes[1].set_title("(b) Relaxação da tensão mecânica")
+    axes[1].set_title("(b) Pressão nas fases estacionárias")
+    axes[1].legend(fontsize=8, loc="lower right")
 
-    axes[2].plot(t, density, linewidth=1.5)
-    axes[2].axhline(0.997, linestyle="--", linewidth=1.0, label="referência SPC/E")
+    # (c) Density: initial fixed box, schematic NPT relaxation, final fixed-volume production.
+    axes[2].plot([0, 25], [0.8983, 0.8983], linewidth=1.5, label="NVT curto: 0,8983 g cm⁻³")
+    axes[2].plot([25, 75], [0.8983, 0.9881], linewidth=1.5, label="NPT: relaxação do volume")
+    axes[2].plot([75, 575], [prod_stats["density_g_cm3"][0]] * 2, linewidth=1.5,
+                 label="produção: 0,9881 g cm⁻³")
+    axes[2].axhline(0.997, linestyle="--", linewidth=1.0, label="referência SPC/E ≈ 0,997")
     axes[2].set_ylim(0.88, 1.015)
     axes[2].set_ylabel("Densidade (g cm⁻³)")
     axes[2].set_xlabel("Tempo acumulado do protocolo (ps)")
     axes[2].set_title("(c) Ajuste de densidade e volume fixo na produção")
-    axes[2].legend(fontsize=8)
+    axes[2].legend(fontsize=8, ncol=2, loc="lower right")
 
     for axis in axes:
         axis.axvline(25, linestyle=":", linewidth=1.0)
         axis.axvline(75, linestyle=":", linewidth=1.0)
-        axis.axvspan(75, 175, alpha=0.06)
+        axis.axvspan(75, 175, alpha=0.05)
         axis.set_xlim(0, 575)
         axis.grid(alpha=0.18)
+        ytop = axis.get_ylim()[1]
+        axis.text(12.5, ytop, "NVT curto\n25 ps", ha="center", va="top", fontsize=7)
+        axis.text(50, ytop, "NPT\n50 ps", ha="center", va="top", fontsize=7)
+        axis.text(325, ytop, "NVT de produção\n500 ps", ha="center", va="top", fontsize=7)
+
     fig.suptitle("Síntese temporal do protocolo corrigido (duração total: 575 ps)")
     fig.tight_layout()
     save(fig, "Fig6_protocolo_575ps_600dpi")
@@ -182,6 +223,7 @@ def main() -> None:
     summary = {
         "protocol_duration_ps": {"short_nvt": 25.0, "npt": 50.0, "production": 500.0, "total": 575.0},
         "controlled_100ps": {"direct_pressure_atm": [-1555.0, 388.0], "post_npt_pressure_atm": [-77.3, 250.8]},
+        "npt_second_half": {"temperature_K": [298.5, 6.3], "pressure_atm": [2.2, 492.8], "density_g_cm3": [0.9932, 0.0089], "volume_A3": [24423.0, 218.0]},
         "production_500ps": production,
         "diffusion_primary": fits[0],
         "diffusion_sensitivity": fits[1:],
