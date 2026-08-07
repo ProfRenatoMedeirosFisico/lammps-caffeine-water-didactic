@@ -1,0 +1,91 @@
+{
+  "protocol_duration_ps": {
+    "short_nvt": 25.0,
+    "npt": 50.0,
+    "production": 500.0,
+    "total": 575.0
+  },
+  "controlled_100ps": {
+    "direct_pressure_atm": [
+      -1555.0,
+      388.0
+    ],
+    "post_npt_pressure_atm": [
+      -77.3,
+      250.8
+    ]
+  },
+  "npt_second_half": {
+    "temperature_K": [
+      298.5,
+      6.3
+    ],
+    "pressure_atm": [
+      2.2,
+      492.8
+    ],
+    "density_g_cm3": [
+      0.9932,
+      0.0089
+    ],
+    "volume_A3": [
+      24423.0,
+      218.0
+    ]
+  },
+  "production_500ps": {
+    "temperature_K": [
+      298.113668,
+      3.259760875392663
+    ],
+    "pressure_atm": [
+      -91.27567577299999,
+      233.80469268337032
+    ],
+    "density_g_cm3": [
+      0.9881230000000001,
+      1.110778552818352e-16
+    ],
+    "volume_A3": [
+      24546.099999999995,
+      3.6397991618751755e-12
+    ]
+  },
+  "diffusion_primary": {
+    "window_ps": [
+      100.0,
+      500.0
+    ],
+    "slope_A2_ps": 1.5897144259669171,
+    "D_cm2_s": 2.6495240432781953e-05,
+    "R2": 0.9991837166427455
+  },
+  "diffusion_sensitivity": [
+    {
+      "window_ps": [
+        150.0,
+        500.0
+      ],
+      "slope_A2_ps": 1.590584276500168,
+      "D_cm2_s": 2.650973794166947e-05,
+      "R2": 0.9988141585024956
+    },
+    {
+      "window_ps": [
+        200.0,
+        500.0
+      ],
+      "slope_A2_ps": 1.607445892946972,
+      "D_cm2_s": 2.6790764882449532e-05,
+      "R2": 0.9985035659492997
+    }
+  ],
+  "method_settings": {
+    "pair_modify": "mix geometric tail no",
+    "minimize": "1.0e-6 1.0e-8 5000 50000",
+    "shake": "1.0e-4 200 0 b 26 a 44",
+    "thermostat_damping_fs": 200.0,
+    "barostat": "iso 1.0 1.0 1000.0",
+    "finite_size_correction": "not applied"
+  }
+}
