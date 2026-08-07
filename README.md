@@ -30,7 +30,7 @@ O protocolo corrigido possui duração acumulada de **575 ps**: 25 ps de NVT cur
 - Passo de integração: 0,5 fs. Somente a água é rígida; as ligações C–H da cafeína permanecem flexíveis.
 - Termostato de Nosé–Hoover: `Tdamp = 200 fs`.
 - Barostato isotrópico: `iso 1.0 1.0 1000.0`, com `Pdamp = 1000 fs`.
-- Inicialização: 150 K, distribuição gaussiana e `mom yes` para remover o momento linear líquido.
+- Inicialização do protocolo principal: 150 K, distribuição gaussiana e `mom yes` para remover o momento linear líquido.
 
 A combinação OPLS-AA/SPC/E por regra geométrica de mistura é uma aproximação prática; os parâmetros cruzados cafeína–água não foram ajustados conjuntamente.
 
@@ -55,8 +55,7 @@ A combinação OPLS-AA/SPC/E por regra geométrica de mistura é uma aproximaç�
 - `nvt_prod_long.zip`: trajetória exata da produção longa, armazenada por Git LFS.
 - `thermo_avg_prod_long.dat`: série termodinâmica processada da produção.
 - `msd_waterO.dat` e `msd_caffeine.dat`: deslocamentos quadráticos médios.
-
-Cada réplica foi iniciada a partir do último frame de sua própria etapa NPT. Como o volume instantâneo flutua, os volumes finais das réplicas diferem ligeiramente. O uso do volume médio equilibrado e posterior reescalonamento da célula é uma alternativa mais controlada para futuras aplicações.
+- `log.minimization.lammps`: log completo da minimização usada para preparar `minimized_opls_spce.data`.
 
 ## Resultados usados no manuscrito revisado
 
@@ -64,6 +63,13 @@ Cada réplica foi iniciada a partir do último frame de sua própria etapa NPT. 
 
 - NVT direto: ρ = 0,8983 g cm⁻³; V = 27000 Å³; P = −1555 ± 388 atm.
 - NVT após NPT: ρ = 0,9881 g cm⁻³; V = 24546,1 Å³; P = −77,3 ± 250,8 atm.
+
+### Segunda metade do NPT
+
+- T = 298,5 ± 6,3 K.
+- P = 2,2 ± 492,8 atm.
+- ρ = 0,9932 ± 0,0089 g cm⁻³.
+- V = 24423 ± 218 Å³.
 
 ### Produção de 500 ps
 
@@ -85,9 +91,13 @@ As janelas 150–500 e 200–500 ps são usadas apenas como testes de sensibilid
 
 ## Figuras e análise reprodutível
 
-- `figures/Fig5_comparacao_protocolos.svg`: comparação corrigida com −1555 e −77,3 atm.
-- `figures/Fig6_protocolo_575ps.svg`: eixo acumulado correto até 575 ps.
-- `scripts/generate_revision_assets.py`: recalcula estatísticas, ajusta o MSD e exporta as Figuras 5–7 em PNG de 600 dpi e PDF vetorial.
+O script `scripts/generate_revision_assets.py` recalcula as estatísticas da produção, ajusta o MSD e gera as Figuras 5–7 em três formatos:
+
+- PNG a 600 dpi;
+- PDF;
+- SVG.
+
+A Figura 6 foi corrigida para **não reutilizar** a pressão do ramo NVT direto (−1555 ± 388 atm) como se fosse a média do NVT curto. O painel de pressão mostra somente os resumos estacionários reportados para a segunda metade do NPT e para a produção de 500 ps.
 
 Execução:
 
@@ -107,6 +117,20 @@ lmp -in in.npt_eq -log log.npt_eq.lammps
 lmp -in in.nvt_prod_long_v2 -log log.nvt_prod_long.lammps
 lmp -in in.nvt_direct_controlled -log log.nvt_direct_controlled.lammps
 ```
+
+## Arquivos históricos que não definem a comparação revisada
+
+Alguns arquivos antigos permanecem no histórico do repositório porque foram gerados durante a construção do protocolo. Eles **não devem ser usados para reconstruir a comparação final do manuscrito**:
+
+- `log.nvt_serial.lammps`: execução diagnóstica anterior, com inicialização direta a 298 K e `Tdamp = 100 fs`;
+- `log.nvt_prod.lammps`: produção anterior de 100 ps;
+- `log.min_serial.lammps`: cópia histórica da minimização; o log canônico correspondente é agora `log.minimization.lammps`.
+
+A comparação final deve usar `in.nvt_direct_controlled`/`log.nvt_direct_controlled.lammps` e os primeiros 100 ps da produção de 500 ps.
+
+## Réplica independente
+
+O manuscrito também discute uma segunda réplica estatística iniciada com semente distinta. Os valores reportados são mantidos como verificação complementar. Os arquivos brutos originais dessa réplica não foram recuperados neste snapshot do repositório; por isso, os arquivos históricos da raiz **não devem ser apresentados como substitutos da Réplica 2**. Quando os arquivos originais forem recuperados, devem ser depositados em uma pasta própria (`replica_2/`) para preservar a proveniência dos números reportados.
 
 ## Licença
 
